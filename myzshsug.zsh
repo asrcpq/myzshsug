@@ -10,7 +10,7 @@ _myzshsug_delete_word() {
 
 _myzshsug_self_insert() {
 	setopt localoptions noshwordsplit noksharrays
-	LBUFFER="$LBUFFER$KEYS"
+	zle .$WIDGET
 	if [ -n "$RBUFFER" ]; then
 		POSTDISPLAY=''
 		return
@@ -19,7 +19,7 @@ _myzshsug_self_insert() {
 		POSTDISPLAY=${POSTDISPLAY:1}
 		# Same as what's typed, just move on
 		((++CURSOR))
-		_myzshsug_set_highlight
+		# _myzshsug_set_highlight
 	else
 		_myzshsug_showsuggestion
 	fi
@@ -31,7 +31,7 @@ _myzshsug_complete_word() {
 	zle complete-word
 	if [[ "$PREVBUF$POSTDISPLAY" =~ ^$BUFFER(.*)$ ]]; then
 		POSTDISPLAY="$BASH_REMATCH[2]"
-		_myzshsug_set_highlight
+		# _myzshsug_set_highlight
 	else
 		_myzshsug_showsuggestion
 	fi
@@ -45,21 +45,24 @@ _myzshsug_showsuggestion() {
 		POSTDISPLAY=$RBUFFER
 		RBUFFER=''
 	fi
-	_myzshsug_set_highlight
+	# _myzshsug_set_highlight
 }
 
-_myzshsug_set_highlight() {
-	region_highlight=("${(@)region_highlight:#$_MYZSHSUG_LAST_HIGHLIGHT}")
-	_MYZSHSUG_LAST_HIGHLIGHT="$#BUFFER $(($#BUFFER + $#POSTDISPLAY)) fg=8"
-	region_highlight+=("$_MYZSHSUG_LAST_HIGHLIGHT")
-}
+# _myzshsug_set_highlight() {
+# 	#if [ -n "$_MYZSHSUG_LAST_HIGHLIGHT" ]; then
+# 	#	region_highlight=("${region_highlight[@]/$_MYZSHSUG_LAST_HIGHLIGHT}")
+# 	#	unset _MYZSHSUG_LAST_HIGHLIGHT
+# 	#fi
+# 	_MYZSHSUG_LAST_HIGHLIGHT="$#BUFFER $(($#BUFFER + $#POSTDISPLAY)) fg=8"
+# 	region_highlight=("$_MYZSHSUG_LAST_HIGHLIGHT")
+# }
 
 zle -N self-insert _myzshsug_self_insert
-for wid in backward-delete-char \
-	backward-delete-word \
-	vi-backward-delete-char \
-	vi-backward-delete-word \
-	vi-cmd-mode; do
+for wid in {vi-,}backward-delete-char \
+	{vi-,}backward-delete-word \
+	vi-{for,back}ward-{blank-,}word \
+	vi-{for,back}ward-{blank-,}word-end \
+	{vi-,}{for,back}ward-char; do
 	zle -N $wid _myzshsug_widget_wrapper_clear_postdisplay
 done
 zle -N vi-add-eol _myzshsug_eol
@@ -90,4 +93,5 @@ _myzshsug_accept_exec() {
 }
 bindkey '' _myzshsug_exec
 bindkey '' _myzshsug_accept_exec
+bindkey '' backward-delete-char
 bindkey '	' _myzshsug_complete_word
