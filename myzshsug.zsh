@@ -1,9 +1,14 @@
-myzshsug_delete() {
+_myzshsug_widget_wrapper_clear_postdisplay() {
 	POSTDISPLAY=''
 	zle .$WIDGET
 }
 
-myzshsug_self_insert() {
+_myzshsug_delete_word() {
+	POSTDISPLAY=''
+	zle .$WIDGET
+}
+
+_myzshsug_self_insert() {
 	setopt localoptions noshwordsplit noksharrays
 	LBUFFER="$LBUFFER$KEYS"
 	if [ -n "$RBUFFER" ]; then
@@ -16,16 +21,16 @@ myzshsug_self_insert() {
 		((++CURSOR))
 		_myzshsug_set_highlight
 	else
-		show_suggestion
+		_myzshsug_showsuggestion
 	fi
 }
 
-myzshsug_complete_word() {
+_myzshsug_complete_word() {
 	POSTDISPLAY=''
 	zle complete-word
 }
 
-show_suggestion() {
+_myzshsug_showsuggestion() {
 	RBUFFER=''
 	local complete_word=$1
 	if ! zle history-beginning-search-backward; then
@@ -39,27 +44,38 @@ show_suggestion() {
 
 _myzshsug_set_highlight() {
 	region_highlight=("${(@)region_highlight:#$_MYZSHSUG_LAST_HIGHLIGHT}")
-	_MYZSHSUG_LAST_HIGHLIGHT="$#BUFFER $(($#BUFFER + $#POSTDISPLAY)) fg=0"
+	_MYZSHSUG_LAST_HIGHLIGHT="$#BUFFER $(($#BUFFER + $#POSTDISPLAY)) fg=8"
 	region_highlight+=("$_MYZSHSUG_LAST_HIGHLIGHT")
 }
 
-zle -N self-insert myzshsug_self_insert
-zle -N backward-delete-char myzshsug_delete
-zle -N vi-backward-delete-char myzshsug_delete
-zle -N show-suggestion
+zle -N self-insert _myzshsug_self_insert
+for wid in backward-delete-char \
+	backward-delete-word \
+	vi-backward-delete-char \
+	vi-backward-delete-word; do
+	zle -N $wid _myzshsug_widget_wrapper_clear_postdisplay
+done
+zle -N vi-add-eol _myzshsug_eol
+zle -N _myzshsug_showsuggestion
 
-zle -N myzshsug_exec;
-zle -N myzshsug_accept_exec;
-zle -N myzshsug_complete_word;
-myzshsug_exec() {
+zle -N _myzshsug_exec;
+zle -N _myzshsug_accept_exec;
+zle -N _myzshsug_complete_word;
+
+_myzshsug_exec() {
 	POSTDISPLAY=""
 	zle accept-line
 }
-myzshsug_accept_exec() {
+_myzshsug_eol() {
+	BUFFER="$BUFFER$POSTDISPLAY"
+	POSTDISPLAY=''
+	zle .$WIDGET
+}
+_myzshsug_accept_exec() {
 	BUFFER=$BUFFER$POSTDISPLAY
 	POSTDISPLAY=""
 	zle accept-line
 }
-bindkey '' myzshsug_exec
-bindkey '' myzshsug_accept_exec
-bindkey '	' myzshsug_complete_word
+bindkey '' _myzshsug_exec
+bindkey '' _myzshsug_accept_exec
+bindkey '	' _myzshsug_complete_word
