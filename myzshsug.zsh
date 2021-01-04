@@ -44,8 +44,8 @@ _myzshsug_showsuggestion() {
 	else
 		POSTDISPLAY=$RBUFFER
 		RBUFFER=''
-		_myzshsug_set_highlight
 	fi
+	_myzshsug_set_highlight
 }
 
 _myzshsug_set_highlight() {
@@ -58,7 +58,8 @@ zle -N self-insert _myzshsug_self_insert
 for wid in backward-delete-char \
 	backward-delete-word \
 	vi-backward-delete-char \
-	vi-backward-delete-word; do
+	vi-backward-delete-word \
+	vi-cmd-mode; do
 	zle -N $wid _myzshsug_widget_wrapper_clear_postdisplay
 done
 zle -N vi-add-eol _myzshsug_eol
@@ -75,18 +76,12 @@ _myzshsug_exec() {
 }
 _myzshsug_bol() {
 	POSTDISPLAY=''
-
-	CURSOR=0
-	zle vi-insert
-	# zle .$WIDGET
+	zle .$WIDGET
 }
 _myzshsug_eol() {
 	BUFFER="$BUFFER$POSTDISPLAY"
 	POSTDISPLAY=''
-
-	CURSOR=$#BUFFER
-	zle vi-add-next
-	# zle .$WIDGET
+	zle .$WIDGET
 }
 _myzshsug_accept_exec() {
 	BUFFER=$BUFFER$POSTDISPLAY
