@@ -26,12 +26,18 @@ _myzshsug_self_insert() {
 }
 
 _myzshsug_complete_word() {
-	POSTDISPLAY=''
+	local PREVBUF="$BUFFER"
+	setopt BASH_REMATCH
 	zle complete-word
+	if [[ "$PREVBUF$POSTDISPLAY" =~ ^$BUFFER(.*)$ ]]; then
+		POSTDISPLAY="$BASH_REMATCH[2]"
+		_myzshsug_set_highlight
+	else
+		_myzshsug_showsuggestion
+	fi
 }
 
 _myzshsug_showsuggestion() {
-	RBUFFER=''
 	local complete_word=$1
 	if ! zle history-beginning-search-backward; then
 		POSTDISPLAY=''
@@ -56,6 +62,7 @@ for wid in backward-delete-char \
 	zle -N $wid _myzshsug_widget_wrapper_clear_postdisplay
 done
 zle -N vi-add-eol _myzshsug_eol
+zle -N vi-insert-bol _myzshsug_bol
 zle -N _myzshsug_showsuggestion
 
 zle -N _myzshsug_exec;
@@ -66,10 +73,20 @@ _myzshsug_exec() {
 	POSTDISPLAY=""
 	zle accept-line
 }
+_myzshsug_bol() {
+	POSTDISPLAY=''
+
+	CURSOR=0
+	zle vi-insert
+	# zle .$WIDGET
+}
 _myzshsug_eol() {
 	BUFFER="$BUFFER$POSTDISPLAY"
 	POSTDISPLAY=''
-	zle .$WIDGET
+
+	CURSOR=$#BUFFER
+	zle vi-add-next
+	# zle .$WIDGET
 }
 _myzshsug_accept_exec() {
 	BUFFER=$BUFFER$POSTDISPLAY
