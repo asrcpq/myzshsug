@@ -1,11 +1,12 @@
 _myzshsug_widget_wrapper_clear_postdisplay() {
 	POSTDISPLAY=''
-	zle .$WIDGET
-}
-
-_myzshsug_delete_word() {
-	POSTDISPLAY=''
-	zle .$WIDGET
+	if [ "$WIDGET" = "vi-backward-kill-word" ]; then
+		zle .backward-kill-word
+	elif [ "$WIDGET" = "vi-backward-delete-char" ]; then
+		zle .backward-delete-char
+	else
+		zle .$WIDGET
+	fi
 }
 
 _myzshsug_self_insert() {
@@ -59,7 +60,7 @@ _myzshsug_showsuggestion() {
 
 zle -N self-insert _myzshsug_self_insert
 for wid in {vi-,}backward-delete-char \
-	{vi-,}backward-delete-word \
+	{vi-,}backward-kill-word \
 	vi-{for,back}ward-{blank-,}word \
 	vi-{for,back}ward-{blank-,}word-end \
 	{vi-,}{for,back}ward-char; do
