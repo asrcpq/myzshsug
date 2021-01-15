@@ -40,12 +40,8 @@ _myzshsug_complete_word() {
 
 _myzshsug_showsuggestion() {
 	local complete_word=$1
-	if ! zle history-beginning-search-backward; then
-		POSTDISPLAY=''
-	else
-		POSTDISPLAY=$RBUFFER
-		RBUFFER=''
-	fi
+	local search_result="${history[(r)$BUFFER*]}"
+	POSTDISPLAY="${search_result#$BUFFER}"
 	# _myzshsug_set_highlight
 }
 
