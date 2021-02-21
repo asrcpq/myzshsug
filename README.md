@@ -3,6 +3,12 @@
 Mainly based on early version of
 [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions).
 
-No highlight for simplicity.
+WONT FIX:
 
-Developed only for vi user.
+* [ ] Highlight(complicated)
+
+* [ ] Escape search string(dirty)
+
+* [ ] Fix paste
+
+* [ ] Support emacs mode
