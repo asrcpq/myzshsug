@@ -33,8 +33,10 @@ _myzshsug_complete_word() {
 }
 
 _myzshsug_showsuggestion() {
-	local complete_word=$1
-	local search_result="${history[(r)$BUFFER*]}"
+	emulate -L zsh
+	setopt EXTENDED_GLOB
+	local prefix="${BUFFER//(#m)[\\*?[\]<>()|^~#]/\\$MATCH}*"
+	local search_result="${history[(r)$prefix]}"
 	POSTDISPLAY="${search_result#$BUFFER}"
 }
 
