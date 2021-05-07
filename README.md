@@ -7,8 +7,6 @@ WONT FIX:
 
 * [ ] Highlight(complicated)
 
-* [ ] Escape search string(dirty)
-
 * [ ] Fix paste
 
 * [ ] Support emacs mode
