@@ -2,7 +2,7 @@ _myzshsug_widget_wrapper_clear_postdisplay() {
 	POSTDISPLAY=''
 	setopt extended_glob
 	if [ "$WIDGET" = "vi-backward-kill-word" ]; then
-		BUFFER="${BUFFER%%?([[:alnum:]])##}"
+		BUFFER="${BUFFER%%(([ ]#)|([a-zA-Z0-9])#)([^a-zA-Z0-9 ])#([ ]#)}"
 	elif [ "$WIDGET" = "vi-backward-delete-char" ]; then
 		zle .backward-delete-char
 	else
